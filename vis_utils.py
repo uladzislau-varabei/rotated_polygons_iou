@@ -8,12 +8,12 @@ def draw_polygons(image_size_yx, corners1, corners2, intersection_corners=None):
     vis_image = image.copy()
     corners1_image = 255 + np.zeros(vis_image.shape, dtype=np.uint8)
     for corner in corners1:
-        points = corner.astype(np.int32).reshape(-1, 4, 2)
+        points = corner.astype(np.int32).reshape(1, -1, 2)
         corners1_image = cv2.fillPoly(corners1_image, points, (0, 0, 255))
 
     corners2_image = 255 + np.zeros(vis_image.shape, dtype=np.uint8)
     for corner in corners2:
-        points = corner.astype(np.int32).reshape(-1, 4, 2)
+        points = corner.astype(np.int32).reshape(1, -1, 2)
         corners2_image = cv2.fillPoly(corners2_image, points, (255, 0, 0))
 
     # corners1_image loses color twice
@@ -23,7 +23,7 @@ def draw_polygons(image_size_yx, corners1, corners2, intersection_corners=None):
 
     if intersection_corners is not None:
         for corner in intersection_corners:
-            points = corner.astype(np.int32).reshape(-1, 4, 2)
+            points = corner.astype(np.int32).reshape(1, -1, 2)
             thickness = max(image_size_yx) // 100
             vis_image = cv2.polylines(vis_image, [points], True, (0, 0, 255), thickness)
 
@@ -37,7 +37,7 @@ def add_title_to_image(image, title, title_h_ratio=0.2):
     title_image = np.zeros((title_h, w, c), dtype=np.uint8)
 
     font = cv2.FONT_HERSHEY_SIMPLEX
-    font_scale = w / 640  # 1 for image size 384 is fine
+    font_scale = w / 640  # 1 for image size 640 is fine
     font_thickness = 2
     text_size = cv2.getTextSize(title, font, font_scale, font_thickness)[0]
     text_x = int(w / 2 - (text_size[0] / 2))
