@@ -1,4 +1,4 @@
-# Polygons intersection. Differenciable IoU of rotated polygons in PyTorch
+# Rotated polygons intersection and differenciable IoU in PyTorch
 
 -----
 
