@@ -1,6 +1,7 @@
 import torch
 
 from polygons_intersection import intersect_convex_polygons
+from utils import points2box
 
 
 def compute_area(points):
@@ -19,3 +20,21 @@ def compute_iou(points1, points2):
     intersection_area = compute_area(intersection_points)
     iou = intersection_area / (area1 + area2 - intersection_area + 1e-16)
     return iou
+
+
+def compute_bboxes_iou(bboxes1, bboxes2, points_mode=True):
+    if points_mode:
+        bboxes1 = points2box(bboxes1)[None, ...]
+        bboxes2 = points2box(bboxes2)[None, ...]
+    else:
+        bboxes1 = bboxes1[:, :4]
+        bboxes2 = bboxes2[:, :4]
+
+    tl = torch.max(bboxes1[:, :2], bboxes2[:, :2])
+    br = torch.min(bboxes1[:, 2:], bboxes2[:, 2:])
+    area1 = torch.prod(bboxes1[:, 2:] - bboxes1[:, :2], 1)
+    area2 = torch.prod(bboxes2[:, 2:] - bboxes2[:, :2], 1)
+    en = (tl < br).type(tl.type()).prod(dim=1)
+    area_i = torch.prod(br - tl, dim=1) * en  # * ((tl < br).all())
+    iou = area_i / (area1 + area2 - area_i + 1e-16)
+    return iou[0] # previously added dim

@@ -4,7 +4,6 @@ import torch
 class Line:
     # Line representation in the form ax + by + c = 0
     def __init__(self, p1, p2):
-        self.device = p1.device
         # a, b - n vector is a perpendicular to (p2 - p1) vector
         p1x, p1y = p1
         p2x, p2y = p2
@@ -33,7 +32,7 @@ class Line:
     def intersect(self, other_line):
         # TODO: add support of the case when two lines are parallel
         # Cramer rule for 2 linear equations
-        w = self.a * other_line.b - other_line.a * self.b
+        w = self.a * other_line.b - other_line.a * self.b + 1e-8
         x = -self.c * other_line.b + other_line.c * self.b
         y = -other_line.c * self.a + self.c * other_line.a
         return torch.stack([x / w, y / w])
@@ -45,8 +44,8 @@ def convert_to_edges(points):
     return torch.stack([points1, points2], dim=0)  # [2, N, 2]
 
 
-def check_nested_polygon(points1, lines2):
-    # Check if polygon1 is nested within polygon2.
+def check_nested_points(points1, lines2):
+    # Check if points1 are all nested within polygon2 which is represented by its edges.
     # To do this, apply all line equations of polygon2 to all points of polygon1.
     # If all signs are the same then polygon1 is nested within polygon2
     all_signs = []
@@ -77,14 +76,14 @@ def intersect_convex_polygons(points1, points2):
     lines2 = [Line(p1, p2) for p1, p2 in zip(edges2[0], edges2[1])]
 
     # First check for nested polygons case
-    is_polygon1_nested = check_nested_polygon(points1, lines2)
+    is_polygon1_nested = check_nested_points(points1, lines2)
     if is_polygon1_nested:
         return points1
-    is_polygon2_nested = check_nested_polygon(points2, lines1)
+    is_polygon2_nested = check_nested_points(points2, lines1)
     if is_polygon2_nested:
         return points2
 
-    # Find all intersection points
+    # Find all intersection points on lines
     intersection_points = []
     for line1 in lines1:
         for line2 in lines2:
@@ -93,6 +92,15 @@ def intersect_convex_polygons(points1, points2):
             line2_location_cond = line2.check_location_cond(intersection_point)
             if line1_location_cond and line2_location_cond:
                 intersection_points.append(intersection_point)
+                # If intersection point is on lines, then check vertexes
+                line1_point = line1.p1
+                line1_vertex_cond = check_nested_points(line1_point[None, :], lines2)
+                if line1_vertex_cond:
+                    intersection_points.append(line1_point)
+                line2_point = line2.p1
+                line2_vertex_cond = check_nested_points(line2_point[None, :], lines1)
+                if line2_vertex_cond:
+                    intersection_points.append(line2_point)
 
     if len(intersection_points) > 0:
         intersection_points = torch.stack(intersection_points)

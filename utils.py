@@ -52,3 +52,14 @@ def box2corners(boxes):
     corners[..., 0] += cx
     corners[..., 1] += cy
     return corners
+
+
+def points2box(points):
+    x_coords = points[..., 0]
+    y_coords = points[..., 1]
+    x_min = torch.min(x_coords)
+    x_max = torch.max(x_coords)
+    y_min = torch.min(y_coords)
+    y_max = torch.max(y_coords)
+    bboxes = torch.stack([x_min, y_min, x_max, y_max])
+    return bboxes

@@ -14,6 +14,18 @@ is the case for rotated object detection (or polygons detection).
 *Note*: polygons intersection is not yet heavily tested. There can be some bugs and edge cases. 
 Please feel free to let me know about them
 
+
+# Demonstration
+
+-----
+
+Below is the demo image which shows algorithm work for different cases. 
+In addition, standard IoU for boxes which are parallel to coordinate axes is computed
+
+![Rotated IoU results](./results/demo1.png)
+
+
+
 # Other similar implementations
 
 -----
