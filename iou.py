@@ -27,6 +27,7 @@ def compute_bboxes_iou(bboxes1, bboxes2, points_mode=True):
         bboxes1 = points2box(bboxes1)[None, ...]
         bboxes2 = points2box(bboxes2)[None, ...]
     else:
+        # TODO: check dimensions if needed. Currently, this is not used
         bboxes1 = bboxes1[:, :4]
         bboxes2 = bboxes2[:, :4]
 

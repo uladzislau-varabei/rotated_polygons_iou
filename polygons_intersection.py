@@ -46,8 +46,8 @@ def convert_to_edges(points):
 
 def check_nested_points(points1, lines2):
     # Check if points1 are all nested within polygon2 which is represented by its edges.
-    # To do this, apply all line equations of polygon2 to all points of polygon1.
-    # If all signs are the same then polygon1 is nested within polygon2
+    # To do this, apply all line equations of polygon2 to all points1.
+    # If all signs are the same then points1 are nested within polygon2
     all_signs = []
     with torch.no_grad():
         for line2 in lines2:
@@ -64,7 +64,9 @@ def intersect_convex_polygons(points1, points2):
     # 3. Iterate over edges of the 1st polygon
     # 4. Find intersection points with the 2nd polygon edges
     # 5. Check location of intersection points. If intersection is on both edges then add it to final polygon
-    # 6. Order points based on angle
+    # 6. If intersection point was added to final polygon, then check location of the first points of both lines.
+    # One of them of both can be within another polygon
+    # 7. Order points based on polar angle from their center
     # Lines intersection:
     # 1. Each line should be represented in form ax + by + c = 0
     # 2. Intersection point is then (see Cramer rule)
